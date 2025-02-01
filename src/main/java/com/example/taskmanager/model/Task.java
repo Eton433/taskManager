@@ -1,5 +1,8 @@
 package com.example.taskmanager.model;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,4 +22,10 @@ public class Task {
     private String description;  // 任务描述
 
     private boolean completed = false;  // 任务是否完成
+    // ✅ 儲存「日期 + 時間（不含秒）」
+    private LocalDateTime deadline;
+    // 🔹 讓 JSON 輸出格式為「YYYY-MM-DD HH:mm」
+    public String getFormattedDeadline() {
+        return deadline != null ? deadline.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : null;
+    }
 }

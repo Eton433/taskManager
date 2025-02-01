@@ -4,6 +4,8 @@ import com.example.taskmanager.model.Task;
 import com.example.taskmanager.repository.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,8 +26,12 @@ public class TaskService {
         return taskRepository.findById(id).orElse(null);
     }
 
-    // 创建任务
-    public Task createTask(Task task) {
+    @PostMapping
+    public Task createTask(@RequestBody Task task) {
+        if (task.getDeadline() != null) {
+             // 🔹 確保時間不含秒數
+            task.setDeadline(task.getDeadline().withSecond(0).withNano(0));
+        }
         return taskRepository.save(task);
     }
 
