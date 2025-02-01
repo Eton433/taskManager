@@ -29,18 +29,25 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
+  
     // 更新任务
-    public Task updateTask(Long id, Task taskDetails) {
-        Optional<Task> taskOptional = taskRepository.findById(id);
-        if (taskOptional.isPresent()) {
-            Task task = taskOptional.get();
-            task.setTitle(taskDetails.getTitle());
-            task.setDescription(taskDetails.getDescription());
-            task.setCompleted(taskDetails.isCompleted());
-            return taskRepository.save(task);
-        }
-        return null;
+public Task updateTask(Long id, Task taskDetails) {
+    Optional<Task> taskOptional = taskRepository.findById(id);
+    if (taskOptional.isPresent()) {
+        Task task = taskOptional.get();
+
+        // **確保不會覆蓋原本的標題與描述**
+        if (taskDetails.getTitle() != null) task.setTitle(taskDetails.getTitle());
+        if (taskDetails.getDescription() != null) task.setDescription(taskDetails.getDescription());
+
+        // **更新任務狀態**
+        task.setCompleted(taskDetails.isCompleted());
+
+        return taskRepository.save(task);
     }
+    return null; // 也可以改成拋出例外
+}
+
 
     // 删除任务
     public void deleteTask(Long id) {

@@ -52,6 +52,23 @@ function App() {
       .catch((error) => console.error("Error deleting task:", error));
   };
 
+  // ✅ **更新任務狀態**
+  const completeTask = (taskId) => {
+    fetch(`http://localhost:8080/tasks/${taskId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ completed: true }), // 設為已完成
+    })
+      .then((response) => response.json())
+      .then((updatedTask) => {
+        // 更新前端狀態
+        setTasks(tasks.map((task) => (task.id === taskId ? updatedTask : task)));
+      })
+      .catch((error) => console.error("Error updating task:", error));
+  };
+
   return (
     <div style={{ padding: "20px" }}>
       <h1>📋 任務管理系統</h1>
@@ -73,7 +90,12 @@ function App() {
           tasks.map((task) => (
             <li key={task.id}>
               <strong>{task.title}</strong> - {task.completed ? "✅ 已完成" : "❌ 未完成"}
-              <button onClick={() => deleteTask(task.id)} style={{ marginLeft: "10px" }}>🗑️ 刪除</button>
+              <button onClick={() => completeTask(task.id)} style={{ marginLeft: "10px" }}>
+                ✅ 完成
+              </button>
+              <button onClick={() => deleteTask(task.id)} style={{ marginLeft: "10px" }}>
+                🗑️ 刪除
+              </button>
             </li>
           ))
         )}
