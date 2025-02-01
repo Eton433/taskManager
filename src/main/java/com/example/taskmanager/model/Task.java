@@ -2,6 +2,9 @@ package com.example.taskmanager.model;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -28,4 +31,17 @@ public class Task {
     public String getFormattedDeadline() {
         return deadline != null ? deadline.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : null;
     }
+    // ✅ 避免遞迴：標記 `subtasks` 為「主要管理方」
+    @OneToMany(mappedBy = "parentTask", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference  
+    private List<Subtask> subtasks;
+
+    // ✅ 自動檢查「所有子任務是否完成」，若完成則標記父任務為完成
+    public void checkCompletion() {
+        if (subtasks != null && !subtasks.isEmpty()) {
+            boolean allCompleted = subtasks.stream().allMatch(Subtask::isCompleted);
+            this.completed = allCompleted;
+        }
+    }
+    
 }
