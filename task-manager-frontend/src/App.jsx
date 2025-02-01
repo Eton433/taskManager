@@ -4,7 +4,7 @@ function App() {
   const [tasks, setTasks] = useState([]); // 儲存任務列表
   const [newTask, setNewTask] = useState(""); // 儲存輸入的任務名稱
 
-  // 🚀 載入時從後端獲取任務
+  // 🚀 當組件載入時，獲取任務列表
   useEffect(() => {
     fetch("http://localhost:8080/tasks")
       .then((response) => response.json())
@@ -14,12 +14,17 @@ function App() {
 
   // ✅ 新增任務
   const addTask = () => {
+    if (newTask.trim() === "") {
+      alert("請輸入任務名稱！");
+      return;
+    }
+
     const taskData = {
       title: newTask,
       description: "",
       completed: false,
     };
-  
+
     fetch("http://localhost:8080/tasks", {
       method: "POST",
       headers: {
@@ -28,14 +33,25 @@ function App() {
       body: JSON.stringify(taskData),
     })
       .then((response) => response.json())
-      .then((data) => {
-        console.log("後端回應：", data);
-        setTasks([...tasks, data]); 
-        setNewTask("");
+      .then((newTaskFromServer) => {
+        setTasks([...tasks, newTaskFromServer]); // 更新前端的任務列表
+        setNewTask(""); // 清空輸入框
       })
       .catch((error) => console.error("Error adding task:", error));
   };
-  
+
+  // 🗑️ **刪除任務**
+  const deleteTask = (taskId) => {
+    fetch(`http://localhost:8080/tasks/${taskId}`, {
+      method: "DELETE",
+    })
+      .then(() => {
+        // 從前端移除該任務
+        setTasks(tasks.filter((task) => task.id !== taskId));
+      })
+      .catch((error) => console.error("Error deleting task:", error));
+  };
+
   return (
     <div style={{ padding: "20px" }}>
       <h1>📋 任務管理系統</h1>
@@ -57,6 +73,7 @@ function App() {
           tasks.map((task) => (
             <li key={task.id}>
               <strong>{task.title}</strong> - {task.completed ? "✅ 已完成" : "❌ 未完成"}
+              <button onClick={() => deleteTask(task.id)} style={{ marginLeft: "10px" }}>🗑️ 刪除</button>
             </li>
           ))
         )}
